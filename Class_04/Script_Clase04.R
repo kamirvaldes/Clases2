@@ -65,7 +65,7 @@ obj1[,porc:=N/sum(N,na.rm = T)]
 # collapsing (colapsar) by average age
 
 
-A<-casosRM[,.(AvAge=mean(Edad,na.rm = T)),by=.(`Centro de salud`)]
+A<-casosRM[,.(AvAge=mean(as.numeric(Edad),na.rm = T)),by=.(`Centro de salud`)]
 
 B<-casosRM[,.(Total_centro=.N),by=.(`Centro de salud`)]
 
@@ -93,7 +93,7 @@ ABCD[,porc_mujeres:=Total_Centro_Mujeres/Total_centro]
 
 # reshaping
 
-E<-casosRM[,.(AvAge=mean(Edad,na.rm = T),`Casos confirmados`=.N),by=.(`Centro de salud`,Sexo)]
+E<-casosRM[,.(AvAge=mean(as.numeric(Edad),na.rm = T),`Casos confirmados`=.N),by=.(`Centro de salud`,Sexo)]
 
 G<-reshape(E,direction = 'wide',timevar = 'Sexo',v.names = c('AvAge','Casos confirmados'),idvar = 'Centro de salud')
 
@@ -108,12 +108,13 @@ text(x =G$`Casos confirmados.Femenino`,y=G$`Casos confirmados.Masculino`, G$`Cen
 library(ggplot2)
 ggplot(data = G,mapping = aes(x=`Casos confirmados.Femenino`,y=`Casos confirmados.Masculino`))+geom_point()
 
-ggplot(G,aes(x=`Casos confirmados.Femenino`,y=`Casos confirmados.Masculino`))+geom_point(aes(size=AvAge.Femenino,colour=AvAge.Masculino))+geom_text(aes(label=`Centro de salud`),size=2,check_overlap = T)
+p1<-ggplot(G,aes(x=`Casos confirmados.Femenino`,y=`Casos confirmados.Masculino`))+geom_point(aes(size=AvAge.Femenino,colour=AvAge.Masculino))+geom_text(aes(label=`Centro de salud`),size=2,check_overlap = T)
 
 ggplot(data = E,mapping = aes(x=AvAge,y=`Casos confirmados`))+geom_point()+facet_wrap(~Sexo)+geom_smooth(method = 'lm',se=F) + geom_smooth(method = 'loess',col='red',se=F)
 
 
 #plotly
+install.packages("plotly")
 library(plotly)
 ggplotly(p1)
 
@@ -133,12 +134,12 @@ ggplot(E,aes(x=AvAge,group=Sexo,colour=Sexo))+geom_density()+facet_wrap(~Sexo)
 #looking at the whole country
 casos<-data.table(read_excel("Class_02/2020-03-17-Casos-confirmados.xlsx",na = "—",trim_ws = TRUE,col_names = TRUE),stringsAsFactors = FALSE)
 
-ggplot(casos,aes(x=Edad,group=Sexo,fill=Sexo))+geom_histogram()+facet_wrap(~factor(Región))
+ggplot(casos,aes(x=as.numeric(Edad),group=Sexo,fill=Sexo))+geom_histogram()+facet_wrap(~factor(Región))
 
 #como sacamos el "fememino"?
 
 
-ggplot(casos,aes(x=Edad,group=Sexo,fill=Sexo))+geom_histogram()
+ggplot(casos,aes(x=as.numeric(Edad),group=Sexo,fill=Sexo))+geom_histogram()
 
 
 #high charter
@@ -147,8 +148,8 @@ ggplot(casos,aes(x=Edad,group=Sexo,fill=Sexo))+geom_histogram()
 #https://chilecracia.org 
 
 #---- Part 3: Intro to Mapping  -------------------
-#install.packages("chilemapas")
-#install.packages("rgdal")
+install.packages("chilemapas")
+install.packages("rgdal")
 library(rgdal)
 library(sp)
 library(chilemapas)
