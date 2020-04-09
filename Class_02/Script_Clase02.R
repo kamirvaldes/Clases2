@@ -33,7 +33,7 @@ is.na(obj2)
 
 numeros_en_texto<-c("1","2","3")
 as.numeric(numeros_en_texto)
-
+numeros_en_texto
 m1<-matrix(1:4,2,2)
 m1%*%t(m1)
 diag(m1)
