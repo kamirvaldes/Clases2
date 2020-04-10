@@ -65,7 +65,7 @@ obj1[,porc:=N/sum(N,na.rm = T)]
 # collapsing (colapsar) by average age
 
 
-A<-casosRM[,.(AvAge=mean(Edad,na.rm = T)),by=.(`Centro de salud`)]
+A<-casosRM[,.(AvAge=mean(as.numeric(Edad),na.rm = T)),by=.(`Centro de salud`)]
 
 B<-casosRM[,.(Total_centro=.N),by=.(`Centro de salud`)]
 
@@ -93,7 +93,7 @@ ABCD[,porc_mujeres:=Total_Centro_Mujeres/Total_centro]
 
 # reshaping
 
-E<-casosRM[,.(AvAge=mean(Edad,na.rm = T),`Casos confirmados`=.N),by=.(`Centro de salud`,Sexo)]
+E<-casosRM[,.(AvAge=mean(as.numeric(Edad),na.rm = T),`Casos confirmados`=.N),by=.(`Centro de salud`,Sexo)]
 
 G<-reshape(E,direction = 'wide',timevar = 'Sexo',v.names = c('AvAge','Casos confirmados'),idvar = 'Centro de salud')
 
@@ -109,6 +109,7 @@ p1<-ggplot(G,aes(x=`Casos confirmados.Femenino`,y=`Casos confirmados.Masculino`)
 p1
 
 #plotly
+library(ggplot2)
 library(plotly)
 ggplotly(p1)
 
