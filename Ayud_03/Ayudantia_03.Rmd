@@ -41,6 +41,7 @@ Antes de comenzar a trabajar, filtremos la base por el último trimestre disponi
 
 ```{r colapsando base 1}
 cat_ocup <- Tabla_19_19[mes_central == params$month,.(sum(V1)),by= "cae_general_red"]
+ggplot(data= cat_ocup,mapping = aes(x = cae_general_red, y = V1, fill = cae_general_red))+ geom_bar(stat = 'identity')
 ```
 
 ## Introducción a comandos básicos de ggplot2
@@ -55,6 +56,8 @@ ggplot(data = cat_ocup, aes(x = cae_general_red, y = V1, fill = cae_general_red)
 Supongamos que, aparte de verlo por categoría ocuacional, sería bueno observar para hombres y mujeres por separado:
 
 ```{r grafico de barras 2}
+ggplot(data = Tabla_19_19,aes(x = cae_general_red,y = V1, fill= cae_general_red))+geom_bar(stat = 'identity') + facet_wrap(~sexo,ncol = 2, scales = 'free_y', as.table = T) 
+
 ggplot(data = Tabla_19_19[mes_central == params$month,], aes(x = cae_general_red, y = V1, fill = cae_general_red)) + 
   geom_bar(stat="identity") +
   facet_wrap(~sexo,ncol = 2,scales = 'free_y',as.table = T) #scale dice que eje se comparte y se deja libre
@@ -71,6 +74,11 @@ En el gráfico de barras anterior observamos los siguientes problemas:
 Solucionemos esos problemas. Primero el tema (2) mediante la agregación de etiquetas:
 
 ```{r agregando etiquetas 1}
+ggplot(data = Tabla_19_19,mapping = aes(x = cae_general_red, y = V1, fill= cae_general_red))+ geom_bar(stat =  'identity')+
+scale_y_continuous(labels = number_format(scale = 0.0000001, suffix = 'M',big.mark = ".",decimal.mark = ","))+
+labs(x= 'categoria ocupacional', y='N°personas', fill=NULL)+
+facet_wrap(~sexo,ncol = 2,scales = 'free_y',as.table = T)
+
 Tabla_19_19$sexo <- factor(Tabla_19_19$sexo, levels = c(1,2), labels = c("Hombres","Mujeres"))
 ```
 
@@ -87,6 +95,7 @@ ggplot(data = Tabla_19_19[mes_central == params$month,], aes(x = cae_general_red
 Supongamos que ahora se desea ver la evolución de ocupados por genero a lo largo del tiempo. Para esto podríamos utilizar el mismo grafico de barras anterior, pero ver la proporción de hombres y mujeres con respecto al total para cada trimestre:
 
 ```{r grafico de barras 5}
+
 ggplot(data = Tabla_19_19[cae_general_red == "Ocupados",], aes(x = mes_central, y = V1, fill = sexo)) + 
   geom_bar(stat="identity") +
   scale_y_continuous(labels = number_format(scale = 0.000001, suffix = "M", big.mark = ".", decimal.mark = ",")) + 
@@ -106,6 +115,8 @@ Por lo tanto, pudiese ser mejor mejor quedarnoso solo con las variaciones de per
 ```{r rezago}
 var_sexo <- Tabla_19_19[cae_general_red == "Ocupados", sum(V1), by = .(ano_trimestre,mes_central,sexo)]
 var_sexo[,sexo_anterior := shift(V1, n = 1, type = 'lag'), by = .(sexo)]
+var_sexo[,sexo_absoluto:= round(V1-sexo_anterior)]
+var_sexo[,sexo_porcentual:= round((sexo_absoluto/sexo_anterior),4)*100]
 ```
 
 Crearemos una evolución absoluta y otra porcentual (con respecto al trimestre anterior) de los ocupados por género, aunque observaremos que el resultado gráfico es el mismo:
@@ -124,6 +135,8 @@ var_sexo$mes_nombre <- factor(var_sexo$mes_central, levels = c(2:12,1), labels =
 Ahora volvemos a graficar la variación absoluta por genero:
 
 ```{r grafico de lineas 1}
+ggplot(data = var_sexo,mapping = aes(x = mes_nombre, y = sexo_porcentual, fill= sexo)) + geom_line(position = position_identity())
+
 ggplot(data = var_sexo, aes(x = mes_nombre, y = sexo_absoluto, group = sexo, color = sexo)) + 
   geom_line(position = position_identity()) +
   scale_y_continuous(labels = number_format(scale = 0.001, suffix = "K", big.mark = ".", decimal.mark = ",")) + 

@@ -1,12 +1,25 @@
 library(readxl)
 library(data.table)
-
+library(ggplot2)
 casos<-data.table(read_excel('Class_02/2020-03-17-Casos-confirmados.xlsx', na = '-', col_names = T, trim_ws= T), stringsAsFactors = FALSE)
+
+casos[,.(promedioedad= mean(as.numeric(Edad),na.rm = T)), by= 'Región']
+casos[Sexo=='Masculino',.(numeroHombres=.N), by= 'Centro de salud']
+casos[,.(maxEdad= max(as.numeric(Edad), na.rm =  T)), by= 'Centro de salud']
 
 
 casos<-casos[Región=='Metropolitana']
 
-names(casos)
+
+head(casos)
+str(casos)
+sapply(casos, FUN = class)
+ncol(casos)
+nrow(casos)
+unique(casos[,.(Región)])
+casos[Sexo== 'Fememino', Sexo:= 'Femenino']
+casos[Sexo=='Masculino',.(numeroH= .N), by= 'Región']
+casos[as.numeric(Edad)<=35,.(numeroPers=.N), by= 'Región']
 
 casos[,table(Sexo)]
 
@@ -61,3 +74,26 @@ al_29_03_2020[, .(sumacasos= sum(cases)), by= 'countriesAndTerritories']
 
 
 al_29_03_2020[cases,.(countriesAndTerritories)]  
+
+
+al_29_03_2020[,.(muertes1= max(deaths,na.rm = T)), by= 'countriesAndTerritories']
+
+
+al_29_03_2020[countriesAndTerritories== 'Brazil',.(cases), by= 'countriesAndTerritories']
+
+ggplot(al_29_03_2020,aes(x = countriesAndTerritories, y = popData2018))+ geom_point()+
+  
+  
+
+  
+#ayudatia 3
+
+Tabla_19_19 <- data.table(readRDS("Tabla_19_19.rds"))
+  
+  
+  
+  
+  
+  
+
+
